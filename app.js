@@ -1,4 +1,5 @@
-console.log(`your server is running on http://localhost:5000`.green)
+const colors=require("colors")
+console.log(`your server is running on http://localhost:5000`.cyan.underline);
 
 var createError = require('http-errors');
 var express = require('express');
