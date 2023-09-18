@@ -1,3 +1,5 @@
+console.log(`your server is running on http://localhost:5000`.green)
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
