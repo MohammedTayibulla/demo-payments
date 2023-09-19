@@ -12,8 +12,7 @@ const paymentFormFile = fs.readFileSync("views/payment_form.html", "utf8");
 const successFile = fs.readFileSync("views/success.html", "utf8");
 
 router.get("/", function (req, res, next) {
-  // Now you have the file contents in the 'paymentFormFile' variable
-  // You can use 'paymentFormFile' as needed, e.g., sending it as a response
+  
   res.send(paymentFormFile);
 });
 
