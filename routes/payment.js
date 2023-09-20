@@ -12,23 +12,38 @@ const paymentFormFile = fs.readFileSync("views/payment_form.html", "utf8");
 const successFile = fs.readFileSync("views/success.html", "utf8");
 
 router.get("/", function (req, res, next) {
-  
   res.send(paymentFormFile);
 });
 
 router.post("/initiate_payment", async (req, res) => {
   try {
     const amount = parseInt(req.body.amount) * 100;
-
+    function generateMerchantTransactionId() {
+      const prefix = "AVEN";
+      const randomDigits = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
+      const timestamp = Date.now(); // Use a timestamp to ensure uniqueness
+    
+      // Combine the prefix, random digits, and timestamp to create the unique ID
+      const merchantTransactionId = `${prefix}${randomDigits}${timestamp}`;
+    
+      return merchantTransactionId;
+    }
+    
+    // Usage example:
+    const uniqueMerchantTransactionId = generateMerchantTransactionId();
+    console.log(uniqueMerchantTransactionId);
+    
     payloadData = {
-      merchantId: "PGTESTPAYUAT101",
-      merchantTransactionId: "MT78505900681881041",
-      merchantUserId: "MUI123",
+      merchantId: "AVENTURASONLINE",
+      // merchantTransactionId: "MT78505900681881042",
+      
+      merchantTransactionId: uniqueMerchantTransactionId,
+      merchantUserId: "AVENTURASHOLIDAYS",
       amount: amount,
-      redirectUrl: "https://www.google.com/",
+      redirectUrl: "https://mohammedtayibulla.github.io/pages/success.html",
       redirectMode: "POST",
-      callbackUrl: "https://in.yahoo.com",
-      mobileNumber: "9999999999",
+      callbackUrl: "https://mohammedtayibulla.github.io/pages/success.html",
+      mobileNumber: "8550895486",
       paymentInstrument: {
         type: "PAY_PAGE",
       },
@@ -36,7 +51,7 @@ router.post("/initiate_payment", async (req, res) => {
     const encodedPayload = Buffer.from(JSON.stringify(payloadData)).toString(
       "base64"
     );
-    const saltKey = "4c1eba6b-c8a8-44d3-9f8b-fe6402f037f3";
+    const saltKey = "562c6632-05a1-44b3-9999-2893cf5db670";
     const saltIndex = 1;
     const string = `${encodedPayload}/pg/v1/pay${saltKey}`;
     const sha256 = crypto.createHash("sha256").update(string).digest("hex");
@@ -47,8 +62,7 @@ router.post("/initiate_payment", async (req, res) => {
       "X-VERIFY": finalXHeader,
     };
 
-    const phonePayUrl =
-      "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
+    const phonePayUrl = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
     const response = await request.post({
       uri: phonePayUrl,
       body: JSON.stringify({ request: encodedPayload }),
@@ -78,6 +92,70 @@ router.post("/initiate_payment", async (req, res) => {
     return res.status(500).send(error_message);
   }
 });
+
+// ==========TEST CREDENTIALS ================
+// router.post("/initiate_payment", async (req, res) => {
+//   try {
+//     const amount = parseInt(req.body.amount) * 100;
+
+//     payloadData = {
+//       merchantId: "PGTESTPAYUAT101",
+//       merchantTransactionId: "MT78505900681881041",
+//       merchantUserId: "MUI123",
+//       amount: amount,
+//       redirectUrl: "https://www.google.com/",
+//       redirectMode: "POST",
+//       callbackUrl: "https://in.yahoo.com",
+//       mobileNumber: "9999999999",
+//       paymentInstrument: {
+//         type: "PAY_PAGE",
+//       },
+//     };
+//     const encodedPayload = Buffer.from(JSON.stringify(payloadData)).toString(
+//       "base64"
+//     );
+//     const saltKey = "4c1eba6b-c8a8-44d3-9f8b-fe6402f037f3";
+//     const saltIndex = 1;
+//     const string = `${encodedPayload}/pg/v1/pay${saltKey}`;
+//     const sha256 = crypto.createHash("sha256").update(string).digest("hex");
+//     const finalXHeader = `${sha256}###${saltIndex}`;
+
+//     const headers = {
+//       "Content-Type": "application/json",
+//       "X-VERIFY": finalXHeader,
+//     };
+
+//     const phonePayUrl =
+//       "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
+//     const response = await request.post({
+//       uri: phonePayUrl,
+//       body: JSON.stringify({ request: encodedPayload }),
+//       headers: headers,
+//     });
+//     console.log("response=>", response);
+//     const responseData = JSON.parse(response);
+//     console.log("responseData=>", responseData);
+//     if (responseData.success === true) {
+//       const url = responseData.data.instrumentResponse.redirectInfo.url;
+//       console.log("redirect_url=>", url);
+//       // res.sendFile("success.html", { root: "views" });
+//       try {
+//         // Redirect to the external URL
+//         res.redirect(url);
+//       } catch (error) {
+//         console.error("Error while redirecting:", error);
+//         // Handle the error and provide a fallback action (e.g., show an error page)
+//         res.status(500).send("Internal Server Error");
+//       }
+//     } else {
+//       // Payment initiation failed, redirect to failed.html with a query parameter
+//       return res.redirect("/payment/failed?status=failed");
+//     }
+//   } catch (error) {
+//     const error_message = `An error occurred: ${error.message}`;
+//     return res.status(500).send(error_message);
+//   }
+// });
 
 // Handle payment success
 router.get("/success", function (req, res) {
