@@ -11,9 +11,16 @@ const paymentFormFile = fs.readFileSync("views/payment_form.html", "utf8");
 
 const successFile = fs.readFileSync("views/success.html", "utf8");
 
+
+
+const SALTDATA={
+  "keyIndex": 1,
+  "key": "562c6632-05a1-44b3-9999-2893cf5db670"
+}
 router.get("/", function (req, res, next) {
   res.send(paymentFormFile);
 });
+// ======== LIVE PAYMENTS =====================
 
 router.post("/initiate_payment", async (req, res) => {
   try {
@@ -22,6 +29,7 @@ router.post("/initiate_payment", async (req, res) => {
       const prefix = "AVEN";
       const randomDigits = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
       const timestamp = Date.now(); // Use a timestamp to ensure uniqueness
+      console.log("timestamp=>",timestamp)
     
       // Combine the prefix, random digits, and timestamp to create the unique ID
       const merchantTransactionId = `${prefix}${randomDigits}${timestamp}`;
@@ -94,6 +102,7 @@ router.post("/initiate_payment", async (req, res) => {
 });
 
 // ==========TEST CREDENTIALS ================
+
 // router.post("/initiate_payment", async (req, res) => {
 //   try {
 //     const amount = parseInt(req.body.amount) * 100;
